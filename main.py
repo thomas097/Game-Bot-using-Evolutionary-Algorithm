@@ -42,12 +42,12 @@ class Agent():
         # Add uniform random noise to weight matrices and biases.
         for i in range(len(self.weights)):
             W, b = self.weights[i], self.biases[i]
-            self.weights[i] = 0.9 * W + 0.1 * np.random.uniform(-1, 1, W.shape)
-            self.biases[i] = 0.9 * b + 0.1 * np.random.uniform(-1, 1, b.shape)
+            self.weights[i] = 0.75 * W + 0.25 * np.random.uniform(-1, 1, W.shape)
+            self.biases[i] = 0.75 * b + 0.25 * np.random.uniform(-1, 1, b.shape)
             
 
 N_AGENTS = 100
-N_GENERATIONS = 60
+N_GENERATIONS = 40
 N_GAMES = 25
 
 AGENT_SHAPE = (3, 64, 32, 3)
@@ -56,15 +56,21 @@ population = [Agent(AGENT_SHAPE) for _ in range(N_AGENTS)]
 
 for gen in range(N_GENERATIONS):
     # Accumulate scores over multiple games.
-    scores = np.zeros(N_AGENTS, dtype=int)
+    total_scores = np.zeros(N_AGENTS, dtype=int)
     for i in range(N_GAMES):
         label = "gen {}/{}, game {}/{}".format(gen + 1, N_GENERATIONS, i + 1, N_GAMES)
-        scores += multi_agent_game(population, label)
+        scores, end = multi_agent_game(population, label)
+        total_scores += scores
+        if end:
+            break
 
     # Sort agents based on their scores.
     agent_score_pairs = zip(population, list(scores))
     population, _ = zip(*sorted(agent_score_pairs, key=lambda x: -x[1]))
     print("Current best AI = {}".format(population[0]))
+
+    if end:
+        break
 
     # Select top 50% best agents from population.
     population = list(population)[:N_AGENTS//2]

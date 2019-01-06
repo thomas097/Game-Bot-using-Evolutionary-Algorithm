@@ -76,4 +76,7 @@ def multi_agent_game(models, label="", max_iter=100):
 
     # Quit pygame and return accumulated rewards for each agent.
     pg.quit()
-    return np.array([agent["score"] for agent in agents])
+    scores = np.array([agent["score"] for agent in agents])
+    if max_iter == 0:
+        return scores, True
+    return scores, False
